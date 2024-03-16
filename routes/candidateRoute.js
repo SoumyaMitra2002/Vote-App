@@ -68,7 +68,7 @@ router1.delete("/:candidateId/user/:userId", async (req, res) => {
         const admin = await user.findById(id);
         const can = await candidate.findById(cid);
         if (!admin) {
-            res.status(404).json({
+            return res.status(404).json({
                 message: "No user found"
             });
         }
@@ -90,5 +90,84 @@ router1.delete("/:candidateId/user/:userId", async (req, res) => {
         res.json(err);
     }
 })
+
+//Vote starting
+router1.post("/vote/:userId/:candidateId", async (req, res) => {
+    try {
+        const data1 = req.params.userId;
+        const data2 = req.params.candidateId;
+        const user1 = await user.findById(data1);
+        const candidate1 = await candidate.findById(data2);
+        if (!user1) {
+            return res.status(403).json({
+                message: "No user found"
+            });
+        }
+        if (!candidate1) {
+            return res.status(403).json({
+                message: "No candidate found"
+            });
+        }
+        if (user1.role === "admin") {
+            return res.status(403).json({
+                message: "User is admin"
+            });
+        }
+        if (user1.isVoted) {
+            return res.status(403).json({
+                message: "You have already voted"
+            });
+        }
+
+        candidate1.votes.push({ user: data1 });
+        candidate1.voteCount++;
+        await candidate1.save();
+
+        user1.isVoted = true;
+        await user1.save();
+
+        res.status(200).json({
+            message: "Voted Successfully"
+        });
+    } catch (err) {
+        res.status(403).json({
+            message: "Error"
+        });
+    }
+})
+
+router1.get("/vote/count", async (req, res) => {
+    try{
+        const candidates = await candidate.find();
+        const partyVoteMap=new Map();
+
+        candidates.forEach((candidatewise)=>{
+            const {party,voteCount}=candidatewise;
+            if(partyVoteMap.has(party)){
+                partyVoteMap.set(party,partyVoteMap.get(party)+voteCount);
+            }
+            else{
+                partyVoteMap.set(party,voteCount);
+            }
+        })
+
+        const finalResult=Array.from(partyVoteMap).map(([party,voteCount])=>({
+            party,
+            voteCount
+        }));
+        res.status(200).json(finalResult);
+    }catch(err){
+        res.status(403).json({
+            message:"Error"
+        });
+    }
+    
+})
+
+router1.get("/all", async (req,res)=>{
+    const list=await candidate.find();
+    res.status(200).json(list);
+})
+
 
 module.exports = router1;
