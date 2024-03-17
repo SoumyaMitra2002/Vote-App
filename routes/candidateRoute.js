@@ -4,7 +4,7 @@ const candidate = require("../models/Candidate");
 const user = require("../models/User");
 
 
-//addCandidate
+//Add-Candidate
 router1.post("/:userId", async (req, res) => {
     try {
         const id = req.params.userId;
@@ -21,15 +21,17 @@ router1.post("/:userId", async (req, res) => {
         }
         const candidate1 = req.body;
         const response = candidate.create(candidate1);
-        res.json(response);
+        return res.status(200).json(candidate1);
     }
     catch (err) {
-        res.json(err);
+        return res.status(403).json({
+            message:err.message
+        });
     }
 
 })
-
-router1.put("/user/:userId/candidate/:candidateId", async (req, res) => {
+//Update-Candidate
+router1.put("/:candidateId/user/:userId", async (req, res) => {
     try {
         const id = req.params.userId;
         const cid = req.params.candidateId;
@@ -61,6 +63,7 @@ router1.put("/user/:userId/candidate/:candidateId", async (req, res) => {
 
 })
 
+//Delete-Candidate
 router1.delete("/:candidateId/user/:userId", async (req, res) => {
     try {
         const id = req.params.userId;
@@ -91,7 +94,7 @@ router1.delete("/:candidateId/user/:userId", async (req, res) => {
     }
 })
 
-//Vote starting
+//Vote Starting
 router1.post("/vote/:userId/:candidateId", async (req, res) => {
     try {
         const data1 = req.params.userId;
@@ -136,6 +139,7 @@ router1.post("/vote/:userId/:candidateId", async (req, res) => {
     }
 })
 
+//Party-wise Vote with sorting
 router1.get("/vote/count", async (req, res) => {
     try{
         const candidates = await candidate.find();
@@ -164,6 +168,7 @@ router1.get("/vote/count", async (req, res) => {
     
 })
 
+//List of Candidates
 router1.get("/all", async (req,res)=>{
     const list=await candidate.find();
     res.status(200).json(list);
