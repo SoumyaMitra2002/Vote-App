@@ -15,6 +15,6 @@ mongoose.connect("mongodb://localhost:27017/vote")
     console.error('Error connecting to MongoDB:', error);
   });
 
-app.listen(3000,()=>{
+app.listen(3200,()=>{
     console.log("Server at 3000")
 })

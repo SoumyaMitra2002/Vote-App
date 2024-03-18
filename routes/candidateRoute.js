@@ -71,17 +71,17 @@ router1.delete("/:candidateId/user/:userId", async (req, res) => {
         const admin = await user.findById(id);
         const can = await candidate.findById(cid);
         if (!admin) {
-            return res.status(404).json({
+            return res.status(403).json({
                 message: "No user found"
             });
         }
         if (admin.role !== 'admin') {
-            return res.status(404).json({
+            return res.status(403).json({
                 message: "You are not admin"
             });
         }
         if (!can) {
-            return res.status(404).json({
+            return res.status(403).json({
                 message: "Candidate not found"
             });
         }
@@ -159,6 +159,7 @@ router1.get("/vote/count", async (req, res) => {
             party,
             voteCount
         }));
+        finalResult.sort((a, b) => b.voteCount - a.voteCount);
         res.status(200).json(finalResult);
     }catch(err){
         res.status(403).json({
